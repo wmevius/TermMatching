@@ -13,7 +13,20 @@ namespace TermMatching.Models
         private const string defaultDataFileName = "Terms.dat";
         private const string defaultCacheKey = "Terms";
 
-        public string DataFileName { get; set; }
+        private string dataFileName;
+
+        public string DataFileName
+        {
+            get
+            {
+                return dataFileName;
+            }
+            set
+            {
+                dataFileName = $"{Path.GetTempPath()}{value}";
+            }
+        }
+
         public string CacheKey { get; set; }
 
         public TermsRepository()
