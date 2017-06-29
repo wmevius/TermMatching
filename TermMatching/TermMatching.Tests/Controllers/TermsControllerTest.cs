@@ -50,9 +50,9 @@ namespace TermMatching.Tests.Controllers
         [TestCleanup]
         public void CleanUp()
         {
-            if (File.Exists(testDataFile))
+            if (File.Exists($"{Path.GetTempPath()}{testDataFile}"))
             {
-                File.Delete(testDataFile);
+                File.Delete($"{Path.GetTempPath()}{testDataFile}");
             }
         }
     }
