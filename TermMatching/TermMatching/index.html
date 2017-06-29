@@ -1,0 +1,100 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Terms Matching</title>
+	<meta charset="utf-8" />
+</head>
+<body>
+    <div>
+        <h2>All Terms</h2>
+        <input type="button" value="Refresh" onclick="refreshList();" />
+        <ul id="terms" />
+    </div>
+    <div>
+        <h2>Add Term</h2>
+        <input type="text" id="newTerm" size="15" />
+        <input type="button" value="Add" onclick="add();" />
+        <p id="term" />
+    </div>
+    <div>
+    <h2>Check term</h2>
+        <input type="text" id="termToCheck" size="25" />
+        <input type="button" value="Check" onclick="check();" />
+        <ul id="termsChecked" />
+    </div>
+
+    <script src="/scripts/jquery-1.10.2.min.js"></script>
+    <script>
+    var uri = '/Terms';
+
+    $(document).ready(refreshList);
+
+    function refreshList()
+    {
+        terms.innerHTML = '';
+        // Send an AJAX request
+        $.getJSON(uri)
+            .done(function (data)
+            {
+                // On success, 'data' contains a list of terms.
+                $.each(data, function (key, item)
+                {
+                    // Add a list item for the term.
+                    $('<li>', { text: item }).appendTo($('#terms'));
+                });
+            });
+    }
+
+    function add()
+    {
+        var newTerm = $('#newTerm').val();
+        $.postJSON(uri, newTerm, refreshList)
+            .done(function (data)
+            {
+                $('#term').text(formatItem(data));
+            })
+            .fail(function (jqXHR, textStatus, err)
+            {
+                $('#term').text('Error: ' + err);
+            });
+    }
+
+    function check()
+    {
+        var termToCheck = $('#termToCheck').val();
+        termsChecked.innerHTML ='';
+        $.postJSON(uri + '/Check', termToCheck, refreshList)
+            .done(function (data)
+            {
+                // On success, 'data' contains a list of terms with a message for each term.
+                $.each(data, function (key, item)
+                {
+                    // Add a list item for the term.
+                    $('<li>', { text: item.Term + ' - ' + item.Message }).appendTo($('#termsChecked'));
+                })
+            })
+            .fail(function (jqXHR, textStatus, err)
+            {
+                $('<li>', { text: err + ": " + jqXHR.responseJSON.Message }).appendTo($('#termsChecked'));
+            });
+    }
+
+    $.postJSON = function (url, data, callback)
+    {
+        return jQuery.ajax(
+            {
+                headers:
+                    {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+            'type': 'POST',
+            'url': url,
+            'data': JSON.stringify(data),
+            'dataType': 'json',
+            'success': callback
+        });
+    };
+</script>
+</body>
+</html>
